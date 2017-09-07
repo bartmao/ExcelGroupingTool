@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NPOI.SS.UserModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,19 @@ namespace Excel数据分类整理工具
 {
     public class CItem
     {
-        public CCell Designation { get; set; }
+        public string SheetName { get; set; }
 
-        public CCell[] Attributes { get; set; }
+        public ICell Designation { get; set; }
 
-        public CCell CS { get; set; }
+        public ICell[] Attributes { get; set; }
 
-        public CCell RMB { get; set; }
+        public ICell Qty { get; set; }
+
+        public ICell CS { get; set; }
+
+        public ICell RMB { get; set; }
+
+        public ICell Power { get; set; }
 
     }
 
