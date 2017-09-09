@@ -33,7 +33,25 @@ namespace Excel数据分类整理工具
 
     }
 
-    public class CCell {
+    public class VItem
+    {
+        private Dictionary<string, int> Columns { get; set; }
+
+        public string SheetName { get; set; }
+
+        public int RowNum { get; set; }
+
+        public List<ICell> Cells { get; set; } = new List<ICell>();
+
+        public VItem(string sheetName, int rowNum)
+        {
+            SheetName = sheetName;
+            RowNum = rowNum;
+        }
+    }
+
+    public class CCell
+    {
         public string Position { get; set; }
 
         public string Value { get; set; }

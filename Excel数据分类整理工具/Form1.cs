@@ -8,6 +8,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -35,6 +36,7 @@ namespace Excel数据分类整理工具
             dlg.Filter = "表格文件|*.xlsx";
             if (dlg.ShowDialog() == DialogResult.OK)
             {
+                FilePath = dlg.FileName;
                 ReadExcel();
             }
         }
@@ -42,20 +44,38 @@ namespace Excel数据分类整理工具
         private void ReadExcel()
         {
             var tbHeaderNum = int.Parse(txtTbHeader.Text.Trim());
-            
+            var groupName = txtGroupName.Text.Trim();
 
-            gv.AutoGenerateColumns = false;
-            gv.Columns.Add("Sheet", "Sheet");
-            gv.Columns.Add("Designation", "Designation");
-            gv.Columns.Add("Qty", "Qty");
-            gv.Columns.Add("CS", "CS");
-            gv.Columns.Add("RMB", "RMB");
-            gv.Columns.Add("Power", "Power");
+            //gv.AutoGenerateColumns = false;
+            //gv.Columns.Add("Sheet", "Sheet");
+            //gv.Columns.Add("Designation", "Designation");
+            //gv.Columns.Add("Qty", "Qty");
+            //gv.Columns.Add("CS", "CS");
+            //gv.Columns.Add("RMB", "RMB");
+            //gv.Columns.Add("Power", "Power");
 
+            var templateFile = AppDomain.CurrentDomain.BaseDirectory + "//Template1.txt";
+            var items = new ExcelTableParser(FilePath).Parse(templateFile);
+
+            return;
             using (var stream = File.OpenRead(FilePath))
             {
                 workbook = new XSSFWorkbook(stream);
-                workbook.SetForceFormulaRecalculation(true);
+                //workbook.SetForceFormulaRecalculation(true);
+
+                for (int i = 0; i < workbook.NumberOfSheets; i++)
+                {
+                    var sheet = workbook.GetSheetAt(i);
+                    if (Regex.IsMatch(sheet.SheetName, @"[\d|\.]+"))
+                    {
+                        var sheetName = sheet.SheetName;
+                        var parser = new ExcelTableParser(FilePath);
+                        parser.Parse(sheetName, 5);
+                    }
+                }
+
+                return;
+
                 for (int i = 0; i < workbook.NumberOfSheets; i++)
                 {
                     var sheet = workbook.GetSheetAt(i);

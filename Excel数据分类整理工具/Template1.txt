@@ -1,0 +1,22 @@
+﻿#数据开始行号
+6
+#主键
+DESIGNATION
+#数据表头，起始列名，
+ITEM №,A
+EQUIP №,B
+SUB №,C
+DESIGNATION,D
+TYPE & SPECIFICATION,F
+UNIT,I
+Q'TY,J
+Weight（t）+ CS,K
+Weight（t）+TS,L
+Weight（t）+Total,M
+Price +RMB,N
+Price +EURO,O
+Price+T(USD),P
+POWER(kw),Q
+COMP.AIR(m3/min),R
+WATER(m3/h),S
+REMARKS,T

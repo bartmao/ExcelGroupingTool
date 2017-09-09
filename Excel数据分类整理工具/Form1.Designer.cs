@@ -153,6 +153,7 @@
             this.txtTbHeader.Name = "txtTbHeader";
             this.txtTbHeader.Size = new System.Drawing.Size(130, 28);
             this.txtTbHeader.TabIndex = 6;
+            this.txtTbHeader.Text = "1";
             // 
             // txtGroupName
             // 
