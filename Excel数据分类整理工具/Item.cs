@@ -11,6 +11,10 @@ namespace Excel数据分类整理工具
     {
         public string SheetName { get; set; }
 
+        public string ItemNo { get; set; }
+
+        public string Equip { get; set; }
+
         public ICell Designation { get; set; }
 
         public ICell[] Attributes { get; set; }
@@ -18,6 +22,10 @@ namespace Excel数据分类整理工具
         public ICell Qty { get; set; }
 
         public ICell CS { get; set; }
+
+        public ICell TS { get; set; }
+
+        public ICell WeightTotal { get; set; }
 
         public ICell RMB { get; set; }
 
