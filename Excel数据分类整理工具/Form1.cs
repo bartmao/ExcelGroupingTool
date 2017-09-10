@@ -21,10 +21,13 @@ namespace Excel数据分类整理工具
         public Form1()
         {
             InitializeComponent();
+            gv.AutoGenerateColumns = false;
         }
         string FilePath { get; set; }
 
         XSSFWorkbook workbook;
+
+        ExcelTableParser Parser;
 
         List<ICell> ChangedCells = new List<ICell>();
 
@@ -37,98 +40,36 @@ namespace Excel数据分类整理工具
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 FilePath = dlg.FileName;
-                ReadExcel();
+                var dir = Path.GetDirectoryName(FilePath);
+                var fname = Path.GetFileName(FilePath);
+                var tmpfn = Path.Combine(dir, "~" + fname);
+                if (File.Exists(tmpfn)) File.Delete(tmpfn);
+                File.Copy(FilePath, tmpfn);
+                ReadExcel(tmpfn);
             }
         }
 
-        private void ReadExcel()
+        private void ReadExcel(string fn)
         {
-            var tbHeaderNum = int.Parse(txtTbHeader.Text.Trim());
-            var groupName = txtGroupName.Text.Trim();
-
-            //gv.AutoGenerateColumns = false;
-            //gv.Columns.Add("Sheet", "Sheet");
-            //gv.Columns.Add("Designation", "Designation");
-            //gv.Columns.Add("Qty", "Qty");
-            //gv.Columns.Add("CS", "CS");
-            //gv.Columns.Add("RMB", "RMB");
-            //gv.Columns.Add("Power", "Power");
-
             var templateFile = AppDomain.CurrentDomain.BaseDirectory + "//Template1.txt";
-            var items = new ExcelTableParser(FilePath).Parse(templateFile);
-
-            return;
-            using (var stream = File.OpenRead(FilePath))
+            Parser = new ExcelTableParser(fn);
+            var items = Parser.Parse(templateFile);
+            workbook = Parser.Workbook;
+            var categories = items.GroupBy(i => i.TypeCategory).OrderBy(g => g.Key);
+            foreach (var cate in categories)
             {
-                workbook = new XSSFWorkbook(stream);
-                //workbook.SetForceFormulaRecalculation(true);
-
-                for (int i = 0; i < workbook.NumberOfSheets; i++)
+                var node = treeView1.Nodes.Add(cate.Key);
+                node.Tag = cate;
+                node.Nodes.AddRange(cate.Select(c => new TreeNode()
                 {
-                    var sheet = workbook.GetSheetAt(i);
-                    if (Regex.IsMatch(sheet.SheetName, @"[\d|\.]+"))
-                    {
-                        var sheetName = sheet.SheetName;
-                        var parser = new ExcelTableParser(FilePath);
-                        parser.Parse(sheetName, 5);
-                    }
-                }
-
-                return;
-
-                for (int i = 0; i < workbook.NumberOfSheets; i++)
-                {
-                    var sheet = workbook.GetSheetAt(i);
-                    if (Regex.IsMatch(sheet.SheetName, @"[\d|\.]+"))
-                    {
-                        for (int j = 5; j < sheet.LastRowNum; j++)
-                        {
-                            var row = sheet.GetRow(j);
-                            var val = row.GetCell(8).StringCellValue;
-                            if (!string.IsNullOrWhiteSpace(val))
-                            {
-                                var designation = row.GetCell(3);
-                                var qty = row.GetCell(9);
-                                var cs = row.GetCell(10);
-                                var rmb = row.GetCell(13);
-                                var power = row.GetCell(16);
-                                Items.Add(new CItem()
-                                {
-                                    SheetName = sheet.SheetName,
-                                    Designation = designation,
-                                    Qty = qty,
-                                    CS = cs,
-                                    RMB = rmb,
-                                    Power = power
-                                });
-                            }
-                        }
-                    }
-                }
-
-                var categories = Items.GroupBy(i => i.Designation.StringCellValue.Trim().ToLower())
-                    .OrderBy(g => g.Key);
-                foreach (var cate in categories)
-                {
-                    var node = treeView1.Nodes.Add(cate.Key);
-                    node.Tag = cate;
-                    node.Nodes.AddRange(cate.Select(c => new TreeNode()
-                    {
-                        Tag = c,
-                        Text = string.Format("{0}({1}:R{2})", c.Designation.StringCellValue, c.SheetName, c.Designation.RowIndex)
-                    }).ToArray());
-                }
+                    Tag = c,
+                    Text = string.Format("{0}({1}:R{2})", c.TypeCategory, c.SheetName, c.RowNum + 1)
+                }).ToArray());
             }
 
-
-
-            //MessageBox.Show(Items.Count.ToString());
-        }
-        private void button2_Click(object sender, EventArgs e)
-        {
-            using (var s = File.Create("11.xlsx"))
+            foreach (var col in VItem.Columns)
             {
-                workbook.Write(s);
+                gv.Columns.Add(col.Key, col.Key);
             }
         }
 
@@ -137,17 +78,17 @@ namespace Excel数据分类整理工具
             var gvRow = gv.Rows[e.RowIndex];
             var gvCell = gv.Rows[e.RowIndex].Cells[e.ColumnIndex];
             var value = e.Value.ToString();
-            var citem = gv.Rows[e.RowIndex].Tag as CItem;
-            var cell = typeof(CItem).GetProperty(gv.Columns[e.ColumnIndex].Name).GetValue(citem) as ICell;
-            var oldVal = GetCellValue(cell);
+            var vitem = gvRow.Tag as VItem;
+            var vcell = gvCell.Tag as ICell;
+            var oldVal = GetCellValue(vcell);
 
             // if using a formula
             if (value.StartsWith("="))
             {
-                cell.SetCellType(CellType.Formula);
-                cell.SetCellFormula(value.Substring(1, value.Length - 1));
+                vcell.SetCellType(CellType.Formula);
+                vcell.SetCellFormula(value.Substring(1, value.Length - 1));
                 var eval = workbook.GetCreationHelper().CreateFormulaEvaluator();
-                eval.EvaluateFormulaCell(cell);
+                eval.EvaluateFormulaCell(vcell);
             }
             else
             {
@@ -155,12 +96,12 @@ namespace Excel数据分类整理工具
                 double v;
                 if (double.TryParse(value, out v))
                 {
-                    cell.SetCellType(CellType.Numeric);
-                    cell.SetCellValue(v);
+                    vcell.SetCellType(CellType.Numeric);
+                    vcell.SetCellValue(v);
                 }
                 else
                 {
-                    cell.SetCellValue(value.ToString());
+                    vcell.SetCellValue(value.ToString());
                 }
             }
 
@@ -171,28 +112,29 @@ namespace Excel数据分类整理工具
             {
                 node = node.Parent;
             }
-            listBox1.Items.Add(new MyListBoxItem(string.Format("{0}!{1}从【{2}】改变到【{3}】\r\n", citem.SheetName, GetCellPosition(cell), oldVal, GetCellValue(cell)), node));
+            listBox1.Items.Add(new MyListBoxItem(string.Format("{0}!{1}从【{2}】改变到【{3}】\r\n", vitem.SheetName, GetCellPosition(vcell), oldVal, GetCellValue(vcell)), node));
             gvCell.Style.BackColor = Color.SkyBlue;
             //RefreshRow(gvRow);
-            ChangedCells.Add(cell);
+            ChangedCells.Add(vcell);
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Parent == null)
             {
-                var items = (e.Node.Tag as IGrouping<string, CItem>).ToList();
+                var items = (e.Node.Tag as IGrouping<string, VItem>).ToList();
                 Bind(items);
+                RefreshSum();
             }
         }
 
-        private void Bind(IEnumerable<CItem> items)
+        private void Bind(IEnumerable<VItem> items)
         {
             gv.Rows.Clear();
             gv.Tag = items;
-            foreach (var citem in items)
+            foreach (var vitem in items)
             {
-                var row = BindRow(citem);
+                var row = BindRow(vitem);
                 gv.Rows.Add(row);
             }
 
@@ -201,48 +143,85 @@ namespace Excel数据分类整理工具
             sumRow.ReadOnly = true;
             sumRow.Tag = null;
             sumRow.CreateCells(gv);
-            sumRow.Cells[0].Value = "汇总";
-            sumRow.Cells[1].Value = "";
-            sumRow.Cells[2].Value = CalculateSum(items.Select(i => i.Qty));
-            sumRow.Cells[3].Value = CalculateSum(items.Select(i => i.CS));
-            sumRow.Cells[4].Value = CalculateSum(items.Select(i => i.RMB));
-            sumRow.Cells[5].Value = CalculateSum(items.Select(i => i.Power));
             gv.Rows.Add(sumRow);
+            RefreshSum();
         }
 
-        private DataGridViewRow BindRow(CItem citem, DataGridViewRow row = null)
+        private DataGridViewRow BindRow(VItem vitem, DataGridViewRow row = null)
         {
             if (row == null)
             {
                 row = new DataGridViewRow();
-                row.Tag = citem;
+                row.Tag = vitem;
                 row.CreateCells(gv);
             }
 
-            row.Cells[0].Value = citem.SheetName;
-            row.Cells[1].Value = citem.Designation.StringCellValue;
-            row.Cells[2].Value = GetCellValue(citem.Qty);
-            row.Cells[3].Value = GetCellValue(citem.CS);
-            row.Cells[4].Value = GetCellValue(citem.RMB);
-            row.Cells[5].Value = GetCellValue(citem.Power);
+            for (int i = 0; i < VItem.Columns.Count; i++)
+            {
+                var vcell = vitem.VCells[i];
+                if (ChangedCells.Contains(vcell)) row.Cells[i].Style.BackColor = Color.SkyBlue;
+                var cell = row.Cells[i];
 
-            if (ChangedCells.Contains(citem.Qty)) row.Cells[2].Style.BackColor = Color.SkyBlue;
-            if (ChangedCells.Contains(citem.CS)) row.Cells[3].Style.BackColor = Color.SkyBlue;
-            if (ChangedCells.Contains(citem.RMB)) row.Cells[4].Style.BackColor = Color.SkyBlue;
-            if (ChangedCells.Contains(citem.Power)) row.Cells[5].Style.BackColor = Color.SkyBlue;
+                if (gv.Columns[i].Name == "TYPE & SPECIFICATION")
+                {
+                    cell.Value = vitem.TypeDescription;
+                    cell.ReadOnly = true;
+                }
+                else if (gv.Columns[i].Name == "EQUIP №")
+                {
+                    cell.Value = vitem.EquipName;
+                    cell.ReadOnly = true;
+                }
+                else
+                {
+                    cell.Value = ExcelTableParser.GetCellValue(vitem.VCells[i]);
+                    cell.Tag = vitem.VCells[i];
+                }
+
+            }
 
             return row;
         }
 
         private void RefreshSum()
         {
-            var items = gv.Tag as IEnumerable<CItem>;
+            var items = gv.Tag as IEnumerable<VItem>;
 
             var sumRow = gv.Rows[gv.Rows.Count - 1];
-            sumRow.Cells[2].Value = CalculateSum(items.Select(i => i.Qty));
-            sumRow.Cells[3].Value = CalculateSum(items.Select(i => i.CS));
-            sumRow.Cells[4].Value = CalculateSum(items.Select(i => i.RMB));
-            sumRow.Cells[5].Value = CalculateSum(items.Select(i => i.Power));
+            foreach (DataGridViewCell cell in sumRow.Cells)
+            {
+                var isNumber = true;
+
+                if (cell.ColumnIndex == 0)
+                {
+                    cell.Value = "汇总";
+                    continue;
+                }
+
+                if (cell.ColumnIndex <= 5) continue;
+
+                double sum = 0;
+                for (int i = 0; i < gv.Rows.Count - 1; i++)
+                {
+                    try
+                    {
+                        var vcell = gv.Rows[i].Cells[cell.ColumnIndex].Tag as ICell;
+                        if (vcell.CellType == CellType.String)
+                        {
+                            isNumber = false;
+                            break;
+                        }
+                        else if (vcell.CellType != CellType.Blank)
+                            sum += vcell.NumericCellValue;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+                if (isNumber)
+                    cell.Value = sum;
+            }
         }
 
         private string GetCellValue(ICell cell)
@@ -300,27 +279,6 @@ namespace Excel数据分类整理工具
             }
         }
 
-        private string CalculateSum(IEnumerable<ICell> cells)
-        {
-            double sum = 0;
-            foreach (var cell in cells)
-            {
-                if (cell.CellType == CellType.Numeric || cell.CellType == CellType.Formula)
-                {
-                    try
-                    {
-                        sum += cell.NumericCellValue;
-                    }
-                    catch (Exception)
-                    {
-                        return "";
-                    }
-
-                }
-            }
-            return sum.ToString();
-        }
-
         private string GetCellPosition(ICell cell)
         {
             return string.Format("{0}{1}", (char)(cell.ColumnIndex + 'A'), cell.RowIndex + 1);
@@ -358,27 +316,54 @@ namespace Excel数据分类整理工具
                 var cell = cells[0];
                 if (cell.ColumnIndex > 0 && cell.RowIndex < gv.Rows.Count - 1)
                 {
-                    label1.Text = GetCellFormula(GetICellOfThisCell(cell));
+                    label1.Text = "";
+                    var vcell = cell.Tag as ICell;
+                    if (vcell != null)
+                        label1.Text = GetCellFormula(vcell);
                 }
-            }
-        }
 
-        private ICell GetICellOfThisCell(DataGridViewCell cell)
-        {
-            var item = gv.Rows[cell.RowIndex].Tag as CItem;
-            return typeof(CItem).GetProperty(gv.Columns[cell.ColumnIndex].Name).GetValue(item) as ICell;
+                BindDetail(cell.RowIndex);
+            }
         }
 
         private void gv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex == gv.Rows.Count - 1) return;
-            var citem = gv.Rows[e.RowIndex].Tag as CItem;
-            BindRow(citem, gv.Rows[e.RowIndex]);
+            var vitem = gv.Rows[e.RowIndex].Tag as VItem;
+            BindRow(vitem, gv.Rows[e.RowIndex]);
             RefreshSum();
+
+            BindDetail(gv.Rows[e.RowIndex].Index);
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void gv_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            BindDetail(e.RowIndex);
+        }
+
+        private void BindDetail(int rowNum)
+        {
+            if (rowNum == -1 || rowNum >= gv.Rows.Count - 1) return;
+            var row = gv.Rows[rowNum];
+            var vitem = row.Tag as VItem;
+            var tb = Parser.GetRange(vitem.SheetName, vitem.RowNum, vitem.RowNum + vitem.Rows, VItem.Columns);
+            gvDetail.DataSource = tb;
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using (var s = File.Create(FilePath))
+                {
+                    workbook.Write(s);
+                    MessageBox.Show("保存成功");
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("请先关闭此Excel文件");
+            }
 
         }
     }

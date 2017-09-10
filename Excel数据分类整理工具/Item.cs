@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Excel数据分类整理工具
@@ -35,13 +36,24 @@ namespace Excel数据分类整理工具
 
     public class VItem
     {
-        private Dictionary<string, int> Columns { get; set; }
+        public static Dictionary<string, int> Columns { get; set; }
 
         public string SheetName { get; set; }
 
         public int RowNum { get; set; }
 
-        public List<ICell> Cells { get; set; } = new List<ICell>();
+        public int Rows { get; set; }
+
+        public string EquipName { get; set; }
+
+        public string TypeDescription { get; set; }
+
+        public string TypeCategory
+        {
+            get;set;
+        }
+
+        public List<ICell> VCells { get; set; } = new List<ICell>();
 
         public VItem(string sheetName, int rowNum)
         {

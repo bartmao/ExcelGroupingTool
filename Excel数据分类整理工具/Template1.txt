@@ -1,8 +1,6 @@
 ﻿#数据开始行号
 6
-#主键
-DESIGNATION
-#数据表头，起始列名，
+#数据表头，起始列名
 ITEM №,A
 EQUIP №,B
 SUB №,C
