@@ -32,18 +32,18 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.gv = new System.Windows.Forms.DataGridView();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.gvDetail = new System.Windows.Forms.DataGridView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.gv = new System.Windows.Forms.DataGridView();
+            this.gvDetail = new System.Windows.Forms.DataGridView();
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gv)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvDetail)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gv)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvDetail)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -90,54 +90,6 @@
             this.panel1.Size = new System.Drawing.Size(1146, 731);
             this.panel1.TabIndex = 3;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(372, 15);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 18);
-            this.label1.TabIndex = 6;
-            // 
-            // gv
-            // 
-            this.gv.AllowUserToAddRows = false;
-            this.gv.AllowUserToDeleteRows = false;
-            this.gv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gv.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gv.Location = new System.Drawing.Point(0, 0);
-            this.gv.Name = "gv";
-            this.gv.RowTemplate.Height = 30;
-            this.gv.Size = new System.Drawing.Size(829, 263);
-            this.gv.TabIndex = 5;
-            this.gv.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.gv_CellParsing);
-            this.gv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.gv_CellValueChanged);
-            this.gv.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.gv_RowHeaderMouseClick);
-            this.gv.SelectionChanged += new System.EventHandler(this.gv_SelectionChanged);
-            // 
-            // listBox1
-            // 
-            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 18;
-            this.listBox1.Location = new System.Drawing.Point(317, 580);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(826, 148);
-            this.listBox1.TabIndex = 1;
-            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
-            // 
-            // gvDetail
-            // 
-            this.gvDetail.AllowUserToAddRows = false;
-            this.gvDetail.AllowUserToDeleteRows = false;
-            this.gvDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gvDetail.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gvDetail.Location = new System.Drawing.Point(0, 0);
-            this.gvDetail.Name = "gvDetail";
-            this.gvDetail.RowTemplate.Height = 30;
-            this.gvDetail.Size = new System.Drawing.Size(829, 260);
-            this.gvDetail.TabIndex = 7;
-            // 
             // splitContainer1
             // 
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -158,6 +110,55 @@
             this.splitContainer1.SplitterDistance = 263;
             this.splitContainer1.TabIndex = 8;
             // 
+            // gv
+            // 
+            this.gv.AllowUserToAddRows = false;
+            this.gv.AllowUserToDeleteRows = false;
+            this.gv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gv.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gv.Location = new System.Drawing.Point(0, 0);
+            this.gv.Name = "gv";
+            this.gv.RowTemplate.Height = 30;
+            this.gv.Size = new System.Drawing.Size(829, 263);
+            this.gv.TabIndex = 5;
+            this.gv.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.gv_CellParsing);
+            this.gv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.gv_CellValueChanged);
+            this.gv.EditingControlShowing += new System.Windows.Forms.DataGridViewEditingControlShowingEventHandler(this.gv_EditingControlShowing);
+            this.gv.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.gv_RowHeaderMouseClick);
+            this.gv.SelectionChanged += new System.EventHandler(this.gv_SelectionChanged);
+            // 
+            // gvDetail
+            // 
+            this.gvDetail.AllowUserToAddRows = false;
+            this.gvDetail.AllowUserToDeleteRows = false;
+            this.gvDetail.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gvDetail.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gvDetail.Location = new System.Drawing.Point(0, 0);
+            this.gvDetail.Name = "gvDetail";
+            this.gvDetail.RowTemplate.Height = 30;
+            this.gvDetail.Size = new System.Drawing.Size(829, 260);
+            this.gvDetail.TabIndex = 7;
+            // 
+            // listBox1
+            // 
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 18;
+            this.listBox1.Location = new System.Drawing.Point(317, 580);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(826, 148);
+            this.listBox1.TabIndex = 1;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(372, 15);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(0, 18);
+            this.label1.TabIndex = 6;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -170,12 +171,12 @@
             this.Text = "Excel分组整理工具";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gv)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvDetail)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gv)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvDetail)).EndInit();
             this.ResumeLayout(false);
 
         }

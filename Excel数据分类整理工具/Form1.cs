@@ -87,8 +87,6 @@ namespace Excel数据分类整理工具
             {
                 vcell.SetCellType(CellType.Formula);
                 vcell.SetCellFormula(value.Substring(1, value.Length - 1));
-                var eval = workbook.GetCreationHelper().CreateFormulaEvaluator();
-                eval.EvaluateFormulaCell(vcell);
             }
             else
             {
@@ -103,6 +101,13 @@ namespace Excel数据分类整理工具
                 {
                     vcell.SetCellValue(value.ToString());
                 }
+            }
+
+            var eval = workbook.GetCreationHelper().CreateFormulaEvaluator();
+            for (int i = 0; i < vitem.VCells.Count; i++)
+            {
+                // re-evaluate the row
+                eval.EvaluateFormulaCell(vitem.VCells[i]);
             }
 
             if (string.IsNullOrWhiteSpace(oldVal))
@@ -356,6 +361,7 @@ namespace Excel数据分类整理工具
             {
                 using (var s = File.Create(FilePath))
                 {
+                    XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
                     workbook.Write(s);
                     MessageBox.Show("保存成功");
                 }
@@ -365,6 +371,14 @@ namespace Excel数据分类整理工具
                 MessageBox.Show("请先关闭此Excel文件");
             }
 
+        }
+
+        private void gv_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            var vcell = gv.CurrentCell.Tag as ICell;
+            if (vcell != null && vcell.CellType == CellType.Formula) {
+                e.Control.Text = "=" + vcell.CellFormula;
+            }
         }
     }
 }
