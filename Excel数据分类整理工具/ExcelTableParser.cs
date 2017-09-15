@@ -51,6 +51,14 @@ namespace Excel数据分类整理工具
                         for (int r = rowStart - 1; r < sheet.LastRowNum; r++)
                         {
                             var row = sheet.GetRow(r);
+                            if (row.GetCell(0) == null) break;
+                            var designation = GetCellValue(row.GetCell(columns["DESIGNATION"]));
+                            if (designation == "TOTAL")
+                            {
+                                // AT END
+                                break;
+                            }
+
                             var equipName = GetCellValue(row.GetCell(columns["EQUIP №"]));
                             var subItemName = GetCellValue(row.GetCell(columns["SUB №"]));
                             var typeName = GetCellValue(row.GetCell(columns["TYPE & SPECIFICATION"])).Trim();
